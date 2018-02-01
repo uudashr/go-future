@@ -2,6 +2,7 @@ package future_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -83,23 +84,32 @@ func TestFuture_Get_timeout(t *testing.T) {
 	}
 }
 
-func TestCall(t *testing.T) {
-	want := "Hello"
+func ExampleFuture() {
+	doThings := func() *future.Future {
+		fut, setResult := future.New()
+		time.AfterFunc(10*time.Millisecond, func() {
+			setResult("OK", nil)
+		})
+		return fut
+	}
 
-	doThings := func() (string, error) {
-		return want, nil
+	res := doThings()
+	val, _ := res.Get(context.Background())
+	fmt.Println(val)
+	// Output: OK
+}
+
+func ExampleCall() {
+	greet := func() (string, error) {
+		return "Hello World!", nil
 	}
 
 	fut := future.Call(func() (future.Value, error) {
-		return doThings()
+		return greet()
 	})
 
-	got, err := fut.Get(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
+	v, _ := fut.Get(context.Background())
+	fmt.Println(v)
+	// Output: Hello World!
 
-	if got != want {
-		t.Fatal("got:", got, "want:", want)
-	}
 }
