@@ -84,6 +84,7 @@ func TestFuture_Get_timeout(t *testing.T) {
 	}
 }
 
+// Basic usage of the future API.
 func ExampleFuture() {
 	// Future function
 	doThings := func() *future.Future {
@@ -101,6 +102,7 @@ func ExampleFuture() {
 	// Output: OK
 }
 
+// Use Listen to get callback style. This can remove the need of extra gouroutine.
 func ExampleFuture_callback() {
 	// Future function
 	doThings := func() *future.Future {
@@ -124,6 +126,7 @@ func ExampleFuture_callback() {
 	// Output: OK
 }
 
+// Use existing sync function call into async using future.
 func ExampleCall() {
 	// Sync function
 	greet := func() (string, error) {
