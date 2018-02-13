@@ -85,6 +85,7 @@ func TestFuture_Get_timeout(t *testing.T) {
 }
 
 func ExampleFuture() {
+	// Future function
 	doThings := func() *future.Future {
 		fut, setResult := future.New()
 		time.AfterFunc(10*time.Millisecond, func() {
@@ -93,6 +94,7 @@ func ExampleFuture() {
 		return fut
 	}
 
+	// Usage
 	res := doThings()
 	val, _ := res.Get(context.Background())
 	fmt.Println(val)
@@ -100,10 +102,12 @@ func ExampleFuture() {
 }
 
 func ExampleCall() {
+	// Sync function
 	greet := func() (string, error) {
 		return "Hello World!", nil
 	}
 
+	// Use sync function as async using future
 	fut := future.Call(func() (future.Value, error) {
 		return greet()
 	})
