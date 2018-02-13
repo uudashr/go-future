@@ -70,7 +70,6 @@ func (f *Future) Listen(callback SetResultFunc) {
 }
 
 func (f *Future) notifyCallbacks() {
-
 	close(f.ready)
 	f.mu.Lock()
 	for _, callback := range f.callbacks {
