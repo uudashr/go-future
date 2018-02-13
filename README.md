@@ -1,5 +1,82 @@
 [![GoDoc](https://godoc.org/github.com/uudashr/go-future?status.svg)](https://godoc.org/github.com/uudashr/go-future)
 # Future
 
-Future concept in Golang. It provides both sync and async way to get the result.
+Future API in Golang. It give flexibility to the user to use both sync and async way to get the result.
+
+
+
+## Usage
+
+Async function
+
+```go
+package main
+
+func main() {
+    res := doThings()
+    val, _ := res.Get(context.Background())
+    fmt.Println(val)
+}
+
+func doThings() *future.Future {
+    fut, setResult := future.New()
+    time.AfterFunc(10*time.Millisecond, func() {
+        setResult("OK", nil)
+    })
+    return fut
+}
+```
+
+
+
+Some of the function created in async manner, we can convert it as async using the future API.
+
+```go
+package main
+
+func main() {
+    // Use sync function as async using future
+    fut := future.Call(func() (future.Value, error) {
+		return greet()
+    })
+
+    v, _ := fut.Get(context.Background())
+    fmt.Println(v)
+}
+
+// Sync function
+func greet() (string, error) {
+    time.Sleep(500 * time.Millisecond)
+    return "Hello World!", nil
+}
+```
+
+
+
+Use callback style to get the result immediately without the overhead of an extra goroutine
+
+```go
+package main
+
+func main() {
+    done := make(chan struct{})
+
+    res := doThings()
+    res.Listen(func(val future.Value, err error) {
+        fmt.Println(val)
+        close(done)
+    })
+
+    <-done
+}
+
+// Future function
+func doThings() *future.Future {
+    fut, setResult := future.New()
+    time.AfterFunc(10*time.Millisecond, func() {
+        setResult("OK", nil)
+    })
+    return fut
+}
+```
 
