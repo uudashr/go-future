@@ -101,9 +101,33 @@ func ExampleFuture() {
 	// Output: OK
 }
 
+func ExampleFuture_callback() {
+	// Future function
+	doThings := func() *future.Future {
+		fut, setResult := future.New()
+		time.AfterFunc(10*time.Millisecond, func() {
+			setResult("OK", nil)
+		})
+		return fut
+	}
+
+	// Usage
+	done := make(chan struct{})
+
+	res := doThings()
+	res.Listen(func(val future.Value, err error) {
+		fmt.Println(val)
+		close(done)
+	})
+
+	<-done
+	// Output: OK
+}
+
 func ExampleCall() {
 	// Sync function
 	greet := func() (string, error) {
+		time.Sleep(10 * time.Millisecond)
 		return "Hello World!", nil
 	}
 

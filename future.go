@@ -1,6 +1,9 @@
 package future
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 // Value represents value concept. Can be anything.
 type Value interface{}
@@ -10,9 +13,11 @@ type SetResultFunc func(Value, error)
 
 // Future holds the value of Future.
 type Future struct {
-	val       Value
-	err       error
-	ready     chan struct{}
+	val   Value
+	err   error
+	ready chan struct{}
+
+	mu        sync.Mutex
 	callbacks []SetResultFunc
 }
 
@@ -48,7 +53,6 @@ func (f *Future) setResult(v Value, err error) {
 	case <-f.ready:
 	default:
 		f.val, f.err = v, err
-		close(f.ready)
 		f.notifyCallbacks()
 	}
 }
@@ -59,14 +63,20 @@ func (f *Future) Listen(callback SetResultFunc) {
 	case <-f.ready:
 		callback(f.val, f.err)
 	default:
+		f.mu.Lock()
 		f.callbacks = append(f.callbacks, callback)
+		f.mu.Unlock()
 	}
 }
 
 func (f *Future) notifyCallbacks() {
+
+	close(f.ready)
+	f.mu.Lock()
 	for _, callback := range f.callbacks {
 		callback(f.val, f.err)
 	}
+	f.mu.Unlock()
 }
 
 // Call will converts the sync function call as async call.
