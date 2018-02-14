@@ -53,6 +53,7 @@ func (f *Future) setResult(v Value, err error) {
 	case <-f.ready:
 	default:
 		f.val, f.err = v, err
+		close(f.ready)
 		f.notifyCallbacks()
 	}
 }
@@ -70,7 +71,6 @@ func (f *Future) Listen(callback SetResultFunc) {
 }
 
 func (f *Future) notifyCallbacks() {
-	close(f.ready)
 	f.mu.Lock()
 	for _, callback := range f.callbacks {
 		callback(f.val, f.err)
