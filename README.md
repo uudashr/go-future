@@ -3,7 +3,7 @@
 
 Future API in Golang. It give flexibility to the user to use both sync and async way to get the result.
 
-The API is too generic. It use `type Value interface{}`, as we know `interface{}` says nothing. You can use this API or create specific implementation for each data type.
+The API is not type specific. It use `type Value interface{}`, as we know `interface{}` says nothing. You can use this API or create specific implementation for each data type.
 
 ## Usage
 
